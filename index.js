@@ -1,7 +1,10 @@
 "use strict";
 
 /* 
- * This returns an Express Middleware Function.
+ * GitHub Repository: https://github.com/Unchosen/express-http2-workaround
+ * NPM Package: https://www.npmjs.com/package/express-http2-workaround
+ * 
+ * This returns an express middleware function.
  * If 'app' is passed, the middleware will be automatically applied.
  * This must be done before ANY other middleware that a http2 request will pass to.
  * 
@@ -11,6 +14,8 @@
  *
  * Or:
  * require('express-http2-workaround')({ express:express, http2:http2, app:expressApp });
+ *
+ * See README.md for more information.
  */
 
 module.exports = function(obj){

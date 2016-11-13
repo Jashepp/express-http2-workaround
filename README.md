@@ -54,7 +54,7 @@ It is best to have this middleware added to your express application before any 
 
 ## Example
 
-```
+```javascript
 // Require Modules
 var fs = require('fs');
 var express = require('express');

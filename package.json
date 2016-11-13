@@ -1,6 +1,6 @@
 {
   "name": "express-http2-workaround",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Compatibility for the express module to work with the http2 module",
   "main": "index.js",
   "scripts": {

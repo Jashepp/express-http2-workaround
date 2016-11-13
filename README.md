@@ -52,6 +52,44 @@ expressApp.use(expressHTTP2Workaround({ express:express, http2:http2 }));
 
 It is best to have this middleware added to your express application before any other middleware. Otherwise the known express+http2 issue may occur in previous middlewares for HTTP/2 requests.
 
+## Example
+
+```
+// Require Modules
+var fs = require('fs');
+var express = require('express');
+var http = require('http');
+var http2 = require('http2');
+
+// Create Express Application
+var app = express();
+
+// Make HTTP2 work with Express (this must be before any other middleware)
+require('express-http2-workaround')({ express:express, http2:http2, app:app });
+
+// Setup HTTP/1.x Server
+var httpServer = http.Server(app);
+httpServer.listen(80,function(){
+  console.log("Express HTTP/1 server started");
+});
+
+// Setup HTTP/2 Server
+var httpsOptions = {
+    'key' : fs.readFileSync(__dirname + '/keys/ssl.key'),
+    'cert' : fs.readFileSync(__dirname + '/keys/ssl.crt'),
+    'ca' : fs.readFileSync(__dirname + '/keys/ssl.crt')
+};
+var http2Server = http2.createServer(httpsOptions,app);
+http2Server.listen(443,function(){
+  console.log("Express HTTP/2 server started");
+});
+
+// Serve some content
+app.get('/', function(req,res){
+    res.send('Hello World! Via HTTP '+req.httpVersion);
+});
+```
+
 ## Known Issues
 
 Any application that needs to access a http IncomingMessage or ServerResponse prototype method which does not exist in http2, may error (I have not come across this issue yet).

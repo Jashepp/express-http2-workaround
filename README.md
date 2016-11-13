@@ -10,7 +10,7 @@ Compatibility for the [express](https://www.npmjs.com/package/express) module to
 
 The awesome [http2](https://www.npmjs.com/package/http2) nodejs module (https://github.com/molnarg/node-http2) does not work straight out the box with the awesome [express](https://www.npmjs.com/package/express) module (https://github.com/expressjs/express).
 
-Due to express having the request and response objects prototype the inbuild nodejs http  IncomingMessage and ServerResponse objects, all requests served by express that are initialised by something else, such as http2, cause an error.
+Due to express having the request and response objects prototype the inbuilt nodejs http  IncomingMessage and ServerResponse objects, all requests served by express that are initialised by something else, such as http2, cause an error.
 
 This issue is mentioned in many places:
 https://github.com/expressjs/express/issues/2364 (thread closed)
@@ -37,7 +37,7 @@ Or [download the latest release](https://github.com/Unchosen/express-http2-worka
 
 ### How to use
 
-When required, a function is available to call with an obect as the argument that must contain the express module and the http2 module. If you want the express middleware to be automatically attached to the express application, simply pass the application as 'app' (see Method 1 below).
+When required, a function is available to call with an object as the argument that must contain the express module and the http2 module. If you want the express middleware to be automatically attached to the express application, simply pass the application as 'app' (see Method 1 below).
 
 Method 1:
 ```javascript

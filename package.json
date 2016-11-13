@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Jason Sheppard",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Unchosen/express-http2-workaround"
+  },
+  "author": "unchosen.aus@gmail.com",
   "license": "MIT",
   "keywords": [
     "express",

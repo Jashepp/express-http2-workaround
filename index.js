@@ -14,11 +14,11 @@
  *
  * Or:
  * require('express-http2-workaround')({ express:express, http2:http2, app:expressApp });
- *
+ * 
  * See README.md for more information.
  */
 
-module.exports = function(obj){
+var me = module.exports = function(obj){
 	
 	// Arguments Validation
 	if(!('express' in obj)) throw new Error('Missing express argument');
@@ -64,40 +64,46 @@ module.exports = function(obj){
 	
 	// Require a new instance of Express Request Module
 	delete require.cache[requestCachedKey]; // Temporary remove from cache
-	var newRequest = require(requestCachedModule.filename);
+	me.requestHTTP2 = require(requestCachedModule.filename);
 	require.cache[requestCachedKey] = requestCachedModule; // Restore original into cache
 	
 	// Require a new instance of Express Response Module
 	delete require.cache[responseCachedKey]; // Temporary remove from cache
-	var newResponse = require(responseCachedModule.filename);
+	me.responseHTTP2 = require(responseCachedModule.filename);
 	require.cache[responseCachedKey] = responseCachedModule; // Restore original into cache
 	
 	// Set the new request and response modules to have the http2 prototypes
-	newRequest.__proto__ = http2.IncomingMessage.prototype;
-	newResponse.__proto__ = http2.ServerResponse.prototype;
-	
-	// Debug purposes
-	express.request_http2 = newRequest;
-	express.response_http2 = newResponse;
-	
-	// Create middleware function
-	var middlewareFunc = function(req, res, next){
-		if(req.httpVersionMajor===2){
-			var reqApp = req.app;
-			var resApp = res.app;
-			req.__proto__ = newRequest;
-			res.__proto__ = newResponse;
-			req.app = reqApp;
-			res.app = resApp;
-		}
-		next();
-	};
+	me.requestHTTP2.__proto__ = http2.IncomingMessage.prototype;
+	me.responseHTTP2.__proto__ = http2.ServerResponse.prototype;
 	
 	// If 'app' argument, apply middleware
-	if(expressApp){
-		expressApp.use(middlewareFunc);
-	}
+	if(expressApp) expressApp.use(me.middlewareFunc);
 	
 	// Finish
-	return middlewareFunc;
+	return me.middlewareFunc;
+};
+
+// These post-run methods are available to use
+
+me.middlewareFunc = function(req, res, next){
+	if(req.httpVersionMajor===2){
+		me.setRequestAsHTTP2(req);
+		me.setResponseAsHTTP2(res);
+	}
+	next();
+};
+
+// Methods to update request and response prototypes with HTTP2 prototypes
+// No argument validation, we want to keep it fast and simple
+
+me.setRequestAsHTTP2 = function(req){
+	var expressApp = req.app;
+	req.__proto__ = me.requestHTTP2;
+	req.app = expressApp;
+};
+
+me.setResponseAsHTTP2 = function(res){
+	var expressApp = res.app;
+	res.__proto__ = me.responseHTTP2;
+	res.app = expressApp;
 };

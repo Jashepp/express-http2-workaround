@@ -83,9 +83,11 @@ var me = module.exports = function(obj){
 	return me.middlewareFunc;
 };
 
+me.noOp = function(){};
+
 // These post-run methods are available to use
 
-me.middlewareFunc = function(req, res, next){
+me.middlewareFunc = function expressHTTP2WorkaroundMiddleware(req, res, next){
 	if(req.httpVersionMajor===2){
 		me.setRequestAsHTTP2(req);
 		me.setResponseAsHTTP2(res);
@@ -96,14 +98,30 @@ me.middlewareFunc = function(req, res, next){
 // Methods to update request and response prototypes with HTTP2 prototypes
 // No argument validation, we want to keep it fast and simple
 
+// I am using Object.defineProperty because express/lib/application.js:230 overwrites the .__proto__ property for request and response on sub express applications
+// To ignore the overwrite, I am setting the property as configurable: true, but set() as noOp
+// This is quite risky, but any other way is even more dangerous
+
 me.setRequestAsHTTP2 = function(req){
 	var expressApp = req.app;
 	req.__proto__ = me.requestHTTP2;
+	Object.defineProperty(req,'__proto__',{
+		get: function(){ return me.requestHTTP2; },
+		set: me.noOp,
+		enumerable: true,
+		configurable: true
+	});
 	req.app = expressApp;
 };
 
 me.setResponseAsHTTP2 = function(res){
 	var expressApp = res.app;
 	res.__proto__ = me.responseHTTP2;
+	Object.defineProperty(res,'__proto__',{
+		get: function(){ return me.responseHTTP2; },
+		set: me.noOp,
+		enumerable: true,
+		configurable: true
+	});
 	res.app = expressApp;
 };

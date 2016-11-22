@@ -52,6 +52,14 @@ expressApp.use(expressHTTP2Workaround({ express:express, http2:http2 }));
 
 It is best to have this middleware added to your express application before any other middleware. Otherwise the known express+http2 issue may occur in previous middlewares for HTTP/2 requests.
 
+This must be done for all sub express applications too (experimental).
+```javascript
+// let 'expressApp' be an existing express application
+var subApp = express();
+require('express-http2-workaround')({ express:express, http2:http2, app:subApp });
+expressApp.use(subApp);
+```
+
 ## Example
 
 ```javascript

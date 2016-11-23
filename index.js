@@ -105,23 +105,31 @@ me.middlewareFunc = function expressHTTP2WorkaroundMiddleware(req, res, next){
 me.setRequestAsHTTP2 = function(req){
 	var expressApp = req.app;
 	req.__proto__ = me.requestHTTP2;
-	Object.defineProperty(req,'__proto__',{
-		get: function(){ return me.requestHTTP2; },
-		set: me.noOp,
-		enumerable: true,
-		configurable: true
-	});
+	Object.defineProperty(req,'__proto__',me.setRequestAsHTTP2.definePropertyObj);
 	req.app = expressApp;
+};
+me.setRequestAsHTTP2.get = function(){
+	return me.requestHTTP2;
+};
+me.setRequestAsHTTP2.definePropertyObj = {
+	get: me.setRequestAsHTTP2.get,
+	set: me.noOp,
+	enumerable: true,
+	configurable: true
 };
 
 me.setResponseAsHTTP2 = function(res){
 	var expressApp = res.app;
 	res.__proto__ = me.responseHTTP2;
-	Object.defineProperty(res,'__proto__',{
-		get: function(){ return me.responseHTTP2; },
-		set: me.noOp,
-		enumerable: true,
-		configurable: true
-	});
+	Object.defineProperty(res,'__proto__',me.setResponseAsHTTP2.definePropertyObj);
 	res.app = expressApp;
+};
+me.setResponseAsHTTP2.get = function(){
+	return me.responseHTTP2;
+};
+me.setResponseAsHTTP2.definePropertyObj = {
+	get: me.setResponseAsHTTP2.get,
+	set: me.noOp,
+	enumerable: true,
+	configurable: true
 };

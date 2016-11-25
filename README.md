@@ -13,9 +13,9 @@ The awesome [http2](https://www.npmjs.com/package/http2) nodejs module (https://
 Due to express having the request and response objects prototype the inbuilt nodejs http  IncomingMessage and ServerResponse objects, all requests served by express that are initialised by something else, such as http2, cause an error.
 
 This issue is mentioned in many places:
-https://github.com/expressjs/express/issues/2364 (thread closed)
-https://github.com/molnarg/node-http2/issues/220 (on the right track for a solution)
-https://github.com/molnarg/node-http2/issues/100 (thread closed)
+https://github.com/expressjs/express/issues/2364 ,
+https://github.com/molnarg/node-http2/issues/220 ,
+https://github.com/molnarg/node-http2/issues/100 
 
 This module creates new express request and response objects, then sets their prototype to http2 IncomingMessage and ServerResponse objects.
 The middleware returned by this module simply checks if the connection is http2 and sets the request and response prototypes to the newly created ones which have the http2 prototype.
@@ -39,7 +39,7 @@ Or [download the latest release](https://github.com/Unchosen/express-http2-worka
 
 When required, a function is available to call with an object as the argument that must contain the express module and the http2 module. If you want the express middleware to be automatically attached to the express application, simply pass the application as 'app' (see Method 1 below).
 
-Method 1:
+Method 1: (recommended for the average use-case)
 ```javascript
 require('express-http2-workaround')({ express:express, http2:http2, app:expressApp });
 ```
@@ -50,14 +50,23 @@ var expressHTTP2Workaround = require('express-http2-workaround');
 expressApp.use(expressHTTP2Workaround({ express:express, http2:http2 }));
 ```
 
+Method 3:
+```javascript
+var expressHTTP2WorkaroundMiddleware = require('express-http2-workaround')({ express:express, http2:http2 });
+expressApp.use(expressHTTP2WorkaroundMiddleware);
+// If you want to access an internal method, or overwrite a method for the module, see the advanced use in the readme
+```
+
 It is best to have this middleware added to your express application before any other middleware. Otherwise the known express+http2 issue may occur in previous middlewares for HTTP/2 requests.
 
-This must be done for all sub express applications too (experimental).
+This must be done for all sub express applications too.
 ```javascript
 // let 'expressApp' be an existing express application
-var subApp = express();
-require('express-http2-workaround')({ express:express, http2:http2, app:subApp });
-expressApp.use(subApp);
+var expressHTTP2WorkaroundMiddleware = require('express-http2-workaround')({ express:express, http2:http2 }); // Create Middleware
+expressApp.use(expressHTTP2WorkaroundMiddleware); // Set middleware on main express app
+var subApp = express(); // create new sub express app
+subApp.use(expressHTTP2WorkaroundMiddleware); // Set middleware on sub express app
+expressApp.use(subApp); // Add the sub express app to the main/parent express app
 ```
 
 ## Example
@@ -98,9 +107,32 @@ app.get('/', function(req,res){
 });
 ```
 
-## Known Issues
+## Advanced Use
 
-Any application that needs to access a http IncomingMessage or ServerResponse prototype method which does not exist in http2, may error (I have not come across this issue yet).
+The middleware returned by `require('express-http2-workaround')({ express:express, http2:http2 })` is a function usable by express. It's a wrapper which calls the internal `middleware` method below. It also has the `.instance` and `.__proto__` properties set to the instance object which have the following properties and methods:
+
+`requestHTTP2` - The new express request object which has `__proto__` set to `http2.IncomingMessage.prototype`. This object is unique per instance.
+
+`responseHTTP2` - The new express request object which has `__proto__` set to `http2.ServerResponse.prototype`. This object is unique per instance.
+
+`middleware` - The internal middleware function which checks if the request is HTTP2, then calls `setRequestAsHTTP2` and `setResponseAsHTTP2`.
+
+`setRequestAsHTTP2` - The function which sets the request object `__proto__` to `requestHTTP2`, it also locks it via Object.defineProperty to prevent sub express applications overwriting it.
+
+`setResponseAsHTTP2` - The function which sets the response object `__proto__` to `responseHTTP2`, it also locks it via Object.defineProperty to prevent sub express applications overwriting it.
+
+For example, to overwrite a property or method, redefine it on `.instance` or `.__proto__`:
+```javascript
+var expressHTTP2WorkaroundMiddleware = require('express-http2-workaround')({ express:express, http2:http2 });
+expressApp.use(expressHTTP2WorkaroundMiddleware);
+
+// Log to console each time the middleware is called
+var boundMiddleware = expressHTTP2WorkaroundMiddleware.instance.middleware.bind(expressHTTP2WorkaroundMiddleware.instance);
+expressHTTP2WorkaroundMiddleware.instance.middleware = function(req, res, next){
+	console.log('Hello World!');
+    boundMiddleware(req, res, next);
+};
+```
 
 ## Tests
 
@@ -108,7 +140,7 @@ None. Try existing express applications with http2 and this module.
 
 ## Contributors
 
-Create issues on the Github project or create pull requests.
+Create issues on the GitHub project or create pull requests.
 
 All the help is appreciated.
 

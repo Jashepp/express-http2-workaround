@@ -11,6 +11,11 @@
  * Example Use:
  * var expressHTTP2Workaround = require('express-http2-workaround');
  * expressApp.use(expressHTTP2Workaround({ express:express, http2:http2 }));
+ * 
+ * Or:
+ * var expressHTTP2WorkaroundMiddleware = require('express-http2-workaround')({ express:express, http2:http2 });
+ * expressApp.use(expressHTTP2WorkaroundMiddleware);
+ * // Some methods are available on expressHTTP2WorkaroundMiddleware
  *
  * Or:
  * require('express-http2-workaround')({ express:express, http2:http2, app:expressApp });
@@ -18,7 +23,10 @@
  * See README.md for more information.
  */
 
-var me = module.exports = function(obj){
+var noOp = function(){};
+
+module.exports = function expressHTTP2Workaround_Init(obj){
+	var instance = { __proto__:instanceProto };
 	
 	// Arguments Validation
 	if(!('express' in obj)) throw new Error('Missing express argument');
@@ -64,72 +72,67 @@ var me = module.exports = function(obj){
 	
 	// Require a new instance of Express Request Module
 	delete require.cache[requestCachedKey]; // Temporary remove from cache
-	me.requestHTTP2 = require(requestCachedModule.filename);
+	instance.requestHTTP2 = require(requestCachedModule.filename);
 	require.cache[requestCachedKey] = requestCachedModule; // Restore original into cache
 	
 	// Require a new instance of Express Response Module
 	delete require.cache[responseCachedKey]; // Temporary remove from cache
-	me.responseHTTP2 = require(responseCachedModule.filename);
+	instance.responseHTTP2 = require(responseCachedModule.filename);
 	require.cache[responseCachedKey] = responseCachedModule; // Restore original into cache
 	
 	// Set the new request and response modules to have the http2 prototypes
-	me.requestHTTP2.__proto__ = http2.IncomingMessage.prototype;
-	me.responseHTTP2.__proto__ = http2.ServerResponse.prototype;
+	instance.requestHTTP2.__proto__ = http2.IncomingMessage.prototype;
+	instance.responseHTTP2.__proto__ = http2.ServerResponse.prototype;
+	
+	// Set instance properties
+	instance._setRequestAsHTTP2DefinePropertyObj = {
+		get: (function(instance){ return function requestHTTP2_Get(){ return instance.requestHTTP2; }; })(instance),
+		set: noOp,
+		enumerable: true,
+		configurable: true
+	};
+	instance._setResponseAsHTTP2DefinePropertyObj = {
+		get: (function(instance){ return function responseHTTP2_Get(){ return instance.responseHTTP2; }; })(instance),
+		set: noOp,
+		enumerable: true,
+		configurable: true
+	};
+	
+	// Wrap middleware and set it's __proto__ to instance
+	var wrappedMiddleware = (function(instance){
+		return function expressHTTP2Workaround_MiddlewareWrapper(req, res, next){
+			return instance.middleware(req, res, next);
+		};
+	})(instance);
+	wrappedMiddleware.instance = wrappedMiddleware.__proto__ = instance;
+	// To override any method, simply do wrappedMiddleware.instance.theMethod = yourOwnFunction;
 	
 	// If 'app' argument, apply middleware
-	if(expressApp) expressApp.use(me.middlewareFunc);
+	if(expressApp) expressApp.use(wrappedMiddleware);
 	
 	// Finish
-	return me.middlewareFunc;
+	return wrappedMiddleware;
 };
 
-me.noOp = function(){};
-
-// These post-run methods are available to use
-
-me.middlewareFunc = function expressHTTP2WorkaroundMiddleware(req, res, next){
-	if(req.httpVersionMajor===2){
-		me.setRequestAsHTTP2(req);
-		me.setResponseAsHTTP2(res);
+var instanceProto = {
+	__proto__: module.exports,
+	middleware: function expressHTTP2Workaround_Middleware(req, res, next){
+		if(req.httpVersionMajor===2){
+			this.setRequestAsHTTP2(req);
+			this.setResponseAsHTTP2(res);
+		}
+		next();
+	},
+	setRequestAsHTTP2: function expressHTTP2Workaround_setRequestAsHTTP2(req){
+		var expressApp = req.app;
+		req.__proto__ = this.requestHTTP2;
+		Object.defineProperty(req,'__proto__',this._setRequestAsHTTP2DefinePropertyObj);
+		req.app = expressApp;
+	},
+	setResponseAsHTTP2: function expressHTTP2Workaround_setResponseAsHTTP2(res){
+		var expressApp = res.app;
+		res.__proto__ = this.responseHTTP2;
+		Object.defineProperty(res,'__proto__',this._setResponseAsHTTP2DefinePropertyObj);
+		res.app = expressApp;
 	}
-	next();
-};
-
-// Methods to update request and response prototypes with HTTP2 prototypes
-// No argument validation, we want to keep it fast and simple
-
-// I am using Object.defineProperty because express/lib/application.js:230 overwrites the .__proto__ property for request and response on sub express applications
-// To ignore the overwrite, I am setting the property as configurable: true, but set() as noOp
-// This is quite risky, but any other way is even more dangerous
-
-me.setRequestAsHTTP2 = function(req){
-	var expressApp = req.app;
-	req.__proto__ = me.requestHTTP2;
-	Object.defineProperty(req,'__proto__',me.setRequestAsHTTP2.definePropertyObj);
-	req.app = expressApp;
-};
-me.setRequestAsHTTP2.get = function(){
-	return me.requestHTTP2;
-};
-me.setRequestAsHTTP2.definePropertyObj = {
-	get: me.setRequestAsHTTP2.get,
-	set: me.noOp,
-	enumerable: true,
-	configurable: true
-};
-
-me.setResponseAsHTTP2 = function(res){
-	var expressApp = res.app;
-	res.__proto__ = me.responseHTTP2;
-	Object.defineProperty(res,'__proto__',me.setResponseAsHTTP2.definePropertyObj);
-	res.app = expressApp;
-};
-me.setResponseAsHTTP2.get = function(){
-	return me.responseHTTP2;
-};
-me.setResponseAsHTTP2.definePropertyObj = {
-	get: me.setResponseAsHTTP2.get,
-	set: me.noOp,
-	enumerable: true,
-	configurable: true
 };

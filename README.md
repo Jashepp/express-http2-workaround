@@ -3,6 +3,7 @@
 
 [![NPM Version][npm-image]][npm-url]
 [![Downloads Stats][npm-downloads]][npm-url]
+[![Travis CI][travis-image]][travis-url]
 
 Compatibility for the [express](https://www.npmjs.com/package/express) module to work with the [http2](https://www.npmjs.com/package/http2) module
 
@@ -140,7 +141,13 @@ The [[Prototype]] of the middleware is also set to the instance object, but plea
 
 ## Tests
 
-None. Try existing express applications with http2 and this module.
+View results on [Travis-CI][travis-url], or run tests manually:
+
+Install Mocha globally: `npm install -g mocha`
+
+Install development dependencies for this module: `npm install`
+
+Then run the test: `npm test`
 
 ## Contributors
 
@@ -181,3 +188,5 @@ NPM Package: [https://www.npmjs.com/package/express-http2-workaround](https://ww
 [npm-image]: https://img.shields.io/npm/v/express-http2-workaround.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/express-http2-workaround
 [npm-downloads]: https://img.shields.io/npm/dm/express-http2-workaround.svg?style=flat-square
+[travis-image]: https://travis-ci.org/Unchosen/express-http2-workaround.svg?branch=master
+[travis-url]: https://travis-ci.org/Unchosen/express-http2-workaround

@@ -143,11 +143,9 @@ The [[Prototype]] of the middleware is also set to the instance object, but plea
 
 View results on [Travis-CI][travis-url], or run tests manually:
 
-Install Mocha globally: `npm install -g mocha`
-
 Install development dependencies for this module: `npm install`
 
-Then run the test: `npm test`
+Then run the test npm script: `npm test`
 
 ## Contributors
 

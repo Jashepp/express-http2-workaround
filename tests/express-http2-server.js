@@ -8,8 +8,20 @@ var expect = chai.expect;
 
 var expressHTTP2Workaround = require('../');
 
-var httpPort = null, httpsPort = null;
+var originalDescribe = describe;
+(function(){
+	try{
+		var nodeHTTP2Bindings = process.binding('http2');
+		var http2 = require('http2');
+		if(http2.constants===nodeHTTP2Bindings.constants && 'NGHTTP2_SESSION_SERVER' in nodeHTTP2Bindings.constants){
+			describe = describe.skip;
+			console.warn("WARN: node http2 is exposed, this version of node has http2 support. Test Skipped.");
+			process.exit(1); // Fail for now
+		}
+	}catch(err){}
+})();
 
+var httpPort = null, httpsPort = null;
 describe('preparing tests',function(){
 	it('find available ports',function(done){
 		var portastic = require('portastic');

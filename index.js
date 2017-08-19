@@ -34,6 +34,12 @@ module.exports = function expressHTTP2Workaround_Init(obj){
 	if('app' in obj && !('use' in obj.app)) throw new Error('app argument must be an express application');
 	var expressApp = ('app' in obj && 'use' in obj.app) ? obj.app : null;
 	
+	// Check HTTP2
+	try{
+		var nodeHTTP2Bindings = process.binding('http2');
+		if(obj.http2.constants===nodeHTTP2Bindings.constants && 'NGHTTP2_SESSION_SERVER' in nodeHTTP2Bindings.constants) throw new Error('NodeJS experimental HTTP2 implementation not supported by express-http2-workaround');
+	}catch(err){};
+	
 	// HTTP2 Validation
 	var http2 = obj.http2;
 	if(!('IncomingMessage' in http2)) throw new Error('Missing IncomingMessage property on http2 module?');

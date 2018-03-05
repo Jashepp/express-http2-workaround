@@ -1,7 +1,7 @@
 "use strict";
 
 /* 
- * GitHub Repository: https://github.com/Unchosen/express-http2-workaround
+ * GitHub Repository: https://github.com/Jashepp/express-http2-workaround
  * NPM Package: https://www.npmjs.com/package/express-http2-workaround
  * 
  * This returns an express middleware function.

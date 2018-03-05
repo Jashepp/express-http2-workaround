@@ -40,7 +40,7 @@ Install the module via [NPM](https://www.npmjs.com/package/express-http2-workaro
 ```
 npm install express-http2-workaround --save
 ```
-Or [download the latest release](https://github.com/Unchosen/express-http2-workaround/releases), or git clone the [repository on GitHub](https://github.com/Unchosen/express-http2-workaround).
+Or [download the latest release](https://github.com/Jashepp/express-http2-workaround/releases), or git clone the [repository on GitHub](https://github.com/Jashepp/express-http2-workaround).
 
 
 ### How to use
@@ -162,7 +162,7 @@ All the help is appreciated.
 
 MIT License
 
-Copyright (c) 2017 Jason Sheppard @ https://github.com/Unchosen
+Copyright (c) 2017 Jason Sheppard @ https://github.com/Jashepp
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -184,12 +184,12 @@ SOFTWARE.
 
 ## Links
 
-Github Repository: [https://github.com/Unchosen/express-http2-workaround](https://github.com/Unchosen/express-http2-workaround)
+Github Repository: [https://github.com/Jashepp/express-http2-workaround](https://github.com/Jashepp/express-http2-workaround)
 
 NPM Package: [https://www.npmjs.com/package/express-http2-workaround](https://www.npmjs.com/package/express-http2-workaround)
 
 [npm-image]: https://img.shields.io/npm/v/express-http2-workaround.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/express-http2-workaround
 [npm-downloads]: https://img.shields.io/npm/dm/express-http2-workaround.svg?style=flat-square
-[travis-image]: https://travis-ci.org/Unchosen/express-http2-workaround.svg?branch=master
-[travis-url]: https://travis-ci.org/Unchosen/express-http2-workaround
+[travis-image]: https://travis-ci.org/Jashepp/express-http2-workaround.svg?branch=master
+[travis-url]: https://travis-ci.org/Jashepp/express-http2-workaround

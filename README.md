@@ -32,7 +32,9 @@ With this module, you can use HTTP/2 via the [http2](https://www.npmjs.com/packa
 ## News:
 Nodejs's experimental http2 is now available in Node v8.4.0+ under the flag "--expose-http2". See https://github.com/nodejs/node/pull/14239
 
-This module does not support the new implementation. Hopefully express adds support.
+**This module does not support the new implementation**. Hopefully express adds support.
+
+**This module also does not work on NodeJS versions above v8.4.0 due to the native http2 module.**
 
 ## Installation
 

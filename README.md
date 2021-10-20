@@ -47,7 +47,12 @@ Or [download the latest release](https://github.com/Jashepp/express-http2-workar
 
 ### How to use
 
-When required, a function is available to call with an object as the argument that must contain the express module and the http2 module. If you want the express middleware to be automatically attached to the express application, simply pass the application as 'app' (see Method 1 below).
+**Important:** When using the http2 module within NodeJS, use a path that resolves directly to the installed module, so it doesn't auto-resolve to the NodeJS internal http2 module. [Issue #3](https://github.com/Jashepp/express-http2-workaround/issues/3#issuecomment-572307723)
+```javascript
+var http2 = require('./node_modules/http2'); // Important: require the http2 module instead of NodeJS's internal http2 module
+```
+
+When this workaround is required, a function is available to call with an object as the argument that must contain the express module and the http2 module. If you want the express middleware to be automatically attached to the express application, simply pass the application as 'app' (see Method 1 below).
 
 Method 1: (recommended for the average use-case)
 ```javascript
@@ -86,7 +91,7 @@ expressApp.use(subApp); // Add the sub express app to the main/parent express ap
 var fs = require('fs');
 var express = require('express');
 var http = require('http');
-var http2 = require('http2');
+var http2 = require('./node_modules/http2'); // Important: require the http2 module instead of NodeJS's internal http2 module
 
 // Create Express Application
 var app = express();
